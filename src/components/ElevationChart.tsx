@@ -115,8 +115,18 @@ function ElevationChart({
       return currentIndex
     }
 
-    const rect = svg.getBoundingClientRect()
-    const xInViewBox = ((event.clientX - rect.left) / rect.width) * WIDTH
+    const ctm = svg.getScreenCTM()
+    let xInViewBox: number
+    if (ctm) {
+      const point = svg.createSVGPoint()
+      point.x = event.clientX
+      point.y = event.clientY
+      xInViewBox = point.matrixTransform(ctm.inverse()).x
+    } else {
+      const rect = svg.getBoundingClientRect()
+      xInViewBox = ((event.clientX - rect.left) / rect.width) * WIDTH
+    }
+
     const ratio = Math.min(
       1,
       Math.max(
