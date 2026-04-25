@@ -110,6 +110,53 @@ export function buildTrack(points: GpxPoint[]): {
   }
 }
 
+export function getPositionAtDistance(
+  points: TrackPoint[],
+  distance: number,
+): { lat: number; lon: number; elevation: number | null } | null {
+  if (points.length === 0) {
+    return null
+  }
+  if (points.length === 1 || distance <= 0) {
+    const first = points[0]
+    return { lat: first.lat, lon: first.lon, elevation: first.elevation }
+  }
+
+  const lastIndex = points.length - 1
+  if (distance >= points[lastIndex].distanceFromStart) {
+    const last = points[lastIndex]
+    return { lat: last.lat, lon: last.lon, elevation: last.elevation }
+  }
+
+  let low = 0
+  let high = lastIndex
+  while (low < high) {
+    const middle = Math.floor((low + high) / 2)
+    if (points[middle].distanceFromStart < distance) {
+      low = middle + 1
+    } else {
+      high = middle
+    }
+  }
+
+  const upperIndex = Math.max(1, low)
+  const upper = points[upperIndex]
+  const lower = points[upperIndex - 1]
+  const span = upper.distanceFromStart - lower.distanceFromStart
+  const t = span > 0 ? (distance - lower.distanceFromStart) / span : 0
+
+  const elevation =
+    lower.elevation !== null && upper.elevation !== null
+      ? lower.elevation + (upper.elevation - lower.elevation) * t
+      : (upper.elevation ?? lower.elevation)
+
+  return {
+    lat: lower.lat + (upper.lat - lower.lat) * t,
+    lon: lower.lon + (upper.lon - lower.lon) * t,
+    elevation,
+  }
+}
+
 export function findPointIndexByDistance(
   points: TrackPoint[],
   targetDistance: number,

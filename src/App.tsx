@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ElevationChart from './components/ElevationChart'
 import GPXUploader from './components/GPXUploader'
-import MapView from './components/MapView'
+import MapView, { type MapViewHandle } from './components/MapView'
 import PlaybackControls from './components/PlaybackControls'
 import RouteLibrary from './components/RouteLibrary'
 import { useDraggableOverlay } from './hooks/useDraggableOverlay'
 import type { CameraMode, ParsedRoute, StoredRouteSummary } from './types'
-import { findPointIndexByDistance, getCurrentSegmentStats } from './utils/geo'
+import {
+  findPointIndexByDistance,
+  getCurrentSegmentStats,
+  getPositionAtDistance,
+} from './utils/geo'
 import { createRouteId, parseGpxText } from './utils/gpx'
 import {
   deleteStoredRoute,
@@ -32,6 +36,7 @@ function App() {
   const [loadingRouteId, setLoadingRouteId] = useState<string | null>(null)
   const [activeStoredRouteId, setActiveStoredRouteId] = useState<string | null>(null)
   const playbackDistanceRef = useRef(0)
+  const mapViewRef = useRef<MapViewHandle>(null)
   const dockDrag = useDraggableOverlay('analysis-dock')
 
   const currentPoint = route?.points[currentIndex] ?? null
@@ -58,6 +63,13 @@ function App() {
   }, [refreshStoredRoutes])
 
   useEffect(() => {
+    if (isPlaying || !currentPoint) {
+      return
+    }
+    mapViewRef.current?.setMarkerPosition(currentPoint.lat, currentPoint.lon)
+  }, [currentPoint, isPlaying])
+
+  useEffect(() => {
     if (!isPlaying || !route) {
       return
     }
@@ -71,32 +83,36 @@ function App() {
       const deltaSeconds = Math.max(0, (timestamp - previousTimestamp) / 1000)
       previousTimestamp = timestamp
 
-      setCurrentIndex((previousIndex) => {
-        const lastIndex = route.points.length - 1
-        if (
-          previousIndex >= lastIndex ||
-          playbackDistanceRef.current >= route.stats.totalDistance
-        ) {
-          setIsPlaying(false)
-          return lastIndex
-        }
+      const lastIndex = route.points.length - 1
+      const nextDistance = Math.min(
+        route.stats.totalDistance,
+        playbackDistanceRef.current + metersPerSecond * speed * deltaSeconds,
+      )
+      playbackDistanceRef.current = nextDistance
 
-        const nextDistance = Math.min(
-          route.stats.totalDistance,
-          playbackDistanceRef.current + metersPerSecond * speed * deltaSeconds,
+      const smoothPosition = getPositionAtDistance(route.points, nextDistance)
+      if (smoothPosition) {
+        mapViewRef.current?.setMarkerPosition(
+          smoothPosition.lat,
+          smoothPosition.lon,
         )
-        playbackDistanceRef.current = nextDistance
+      }
 
-        if (nextDistance >= route.stats.totalDistance) {
-          setIsPlaying(false)
+      const reachedEnd = nextDistance >= route.stats.totalDistance
+      setCurrentIndex((previousIndex) => {
+        if (reachedEnd) {
           return lastIndex
         }
-
         return Math.max(
           previousIndex,
           findPointIndexByDistance(route.points, nextDistance),
         )
       })
+
+      if (reachedEnd) {
+        setIsPlaying(false)
+        return
+      }
 
       animationFrame = window.requestAnimationFrame(tick)
     }
@@ -225,6 +241,7 @@ function App() {
   return (
     <main className="app-shell">
       <MapView
+        ref={mapViewRef}
         route={route}
         currentIndex={currentIndex}
         progress={progress}

@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import type { FeatureCollection, LineString } from 'geojson'
@@ -30,15 +38,22 @@ interface MapViewProps {
   onCameraModeChange: (mode: CameraMode) => void
 }
 
-function MapView({
-  route,
-  currentIndex,
-  progress,
-  cameraMode,
-  mapboxToken,
-  segmentStats,
-  onCameraModeChange,
-}: MapViewProps) {
+export interface MapViewHandle {
+  setMarkerPosition: (lat: number, lon: number) => void
+}
+
+const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
+  {
+    route,
+    currentIndex,
+    progress,
+    cameraMode,
+    mapboxToken,
+    segmentStats,
+    onCameraModeChange,
+  },
+  ref,
+) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
   const currentMarkerRef = useRef<mapboxgl.Marker | null>(null)
@@ -46,6 +61,16 @@ function MapView({
   const finishMarkerRef = useRef<mapboxgl.Marker | null>(null)
   const [isMapReady, setIsMapReady] = useState(false)
   const toolbarDrag = useDraggableOverlay('map-toolbar')
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      setMarkerPosition: (lat: number, lon: number) => {
+        currentMarkerRef.current?.setLngLat([lon, lat])
+      },
+    }),
+    [],
+  )
 
   const points = route?.points ?? []
   const currentPoint = points[currentIndex] ?? null
@@ -270,8 +295,6 @@ function MapView({
         .setLngLat([currentPoint.lon, currentPoint.lat])
         .addTo(map)
     }
-
-    currentMarkerRef.current.setLngLat([currentPoint.lon, currentPoint.lat])
   }, [currentPoint, isMapReady])
 
   useEffect(() => {
@@ -368,7 +391,7 @@ function MapView({
       </div>
     </section>
   )
-}
+})
 
 function enableTerrain(map: mapboxgl.Map) {
   if (!map.getSource(TERRAIN_SOURCE_ID)) {
