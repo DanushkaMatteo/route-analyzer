@@ -9,6 +9,7 @@ import {
   formatPercent,
   formatSpeed,
 } from '../utils/format'
+import { useDraggableOverlay } from '../hooks/useDraggableOverlay'
 
 interface StatsPanelProps {
   route: ParsedRoute | null
@@ -23,9 +24,16 @@ function StatsPanel({
   progress,
   segmentStats,
 }: StatsPanelProps) {
+  const drag = useDraggableOverlay('stats-panel')
+
   if (!route || !currentPoint) {
     return (
-      <aside className="stats-panel" aria-label="Route statistics">
+      <aside
+        className="stats-panel"
+        aria-label="Route statistics"
+        style={drag.style}
+        onPointerDown={drag.onPointerDown}
+      >
         <h2>Route Stats</h2>
         <p className="muted">Upload a GPX to begin.</p>
       </aside>
@@ -35,7 +43,12 @@ function StatsPanel({
   const { stats } = route
 
   return (
-    <aside className="stats-panel" aria-label="Route statistics">
+    <aside
+      className="stats-panel"
+      aria-label="Route statistics"
+      style={drag.style}
+      onPointerDown={drag.onPointerDown}
+    >
       <div className="stats-heading">
         <h2>Live Stats</h2>
         <span>{formatPercent(progress)}</span>

@@ -1,4 +1,5 @@
 import type { ParsedRoute } from '../types'
+import { useDraggableOverlay } from '../hooks/useDraggableOverlay'
 
 interface GPXUploaderProps {
   route: ParsedRoute | null
@@ -8,8 +9,15 @@ interface GPXUploaderProps {
 }
 
 function GPXUploader({ route, isLoading, error, onUpload }: GPXUploaderProps) {
+  const drag = useDraggableOverlay('upload-bar')
+
   return (
-    <section className="upload-bar" aria-label="GPX upload">
+    <section
+      className="upload-bar"
+      aria-label="GPX upload"
+      style={drag.style}
+      onPointerDown={drag.onPointerDown}
+    >
       <div className="upload-copy">
         <p className="eyebrow">Trail route analysis</p>
         <h1>GPX Route Visualiser</h1>

@@ -4,6 +4,7 @@ import {
   formatDuration,
   formatElevation,
 } from '../utils/format'
+import { useDraggableOverlay } from '../hooks/useDraggableOverlay'
 
 interface RouteLibraryProps {
   routes: StoredRouteSummary[]
@@ -31,8 +32,15 @@ function RouteLibrary({
   onLoadRoute,
   onDeleteRoute,
 }: RouteLibraryProps) {
+  const drag = useDraggableOverlay('route-library')
+
   return (
-    <section className="route-library" aria-label="Saved GPX routes">
+    <section
+      className="route-library"
+      aria-label="Saved GPX routes"
+      style={drag.style}
+      onPointerDown={drag.onPointerDown}
+    >
       <div className="library-header">
         <div>
           <h2>Saved Routes</h2>

@@ -4,6 +4,7 @@ import GPXUploader from './components/GPXUploader'
 import MapView from './components/MapView'
 import PlaybackControls from './components/PlaybackControls'
 import RouteLibrary from './components/RouteLibrary'
+import { useDraggableOverlay } from './hooks/useDraggableOverlay'
 import type { CameraMode, ParsedRoute, StoredRouteSummary } from './types'
 import { findPointIndexByDistance, getCurrentSegmentStats } from './utils/geo'
 import { createRouteId, parseGpxText } from './utils/gpx'
@@ -31,6 +32,7 @@ function App() {
   const [loadingRouteId, setLoadingRouteId] = useState<string | null>(null)
   const [activeStoredRouteId, setActiveStoredRouteId] = useState<string | null>(null)
   const playbackDistanceRef = useRef(0)
+  const dockDrag = useDraggableOverlay('analysis-dock')
 
   const currentPoint = route?.points[currentIndex] ?? null
   const maxIndex = route ? route.points.length - 1 : 0
@@ -249,7 +251,11 @@ function App() {
         onDeleteRoute={handleDeleteStoredRoute}
       />
 
-      <div className="analysis-dock">
+      <div
+        className="analysis-dock"
+        style={dockDrag.style}
+        onPointerDown={dockDrag.onPointerDown}
+      >
         <PlaybackControls
           disabled={!route}
           isPlaying={isPlaying}

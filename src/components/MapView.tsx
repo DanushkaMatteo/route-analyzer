@@ -10,6 +10,7 @@ import type {
 } from '../types'
 import { calculateBearing } from '../utils/geo'
 import StatsPanel from './StatsPanel'
+import { useDraggableOverlay } from '../hooks/useDraggableOverlay'
 
 const ROUTE_SOURCE_ID = 'uploaded-route-source'
 const ROUTE_CASING_LAYER_ID = 'uploaded-route-casing'
@@ -44,6 +45,7 @@ function MapView({
   const startMarkerRef = useRef<mapboxgl.Marker | null>(null)
   const finishMarkerRef = useRef<mapboxgl.Marker | null>(null)
   const [isMapReady, setIsMapReady] = useState(false)
+  const toolbarDrag = useDraggableOverlay('map-toolbar')
 
   const points = route?.points ?? []
   const currentPoint = points[currentIndex] ?? null
@@ -329,7 +331,12 @@ function MapView({
         segmentStats={segmentStats}
       />
 
-      <div className="map-toolbar" aria-label="Camera controls">
+      <div
+        className="map-toolbar"
+        aria-label="Camera controls"
+        style={toolbarDrag.style}
+        onPointerDown={toolbarDrag.onPointerDown}
+      >
         <div className="mode-switch">
           <button
             type="button"
