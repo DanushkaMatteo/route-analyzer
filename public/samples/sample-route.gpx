@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="GPX Route Visualiser" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Sample Ridge Loop</name>
+    <time>2026-04-25T08:00:00Z</time>
+  </metadata>
+  <trk>
+    <name>Sample Ridge Loop</name>
+    <trkseg>
+      <trkpt lat="51.50750" lon="-0.12690">
+        <ele>35</ele>
+        <time>2026-04-25T08:00:00Z</time>
+      </trkpt>
+      <trkpt lat="51.50920" lon="-0.12180">
+        <ele>44</ele>
+        <time>2026-04-25T08:03:20Z</time>
+      </trkpt>
+      <trkpt lat="51.51120" lon="-0.11700">
+        <ele>61</ele>
+        <time>2026-04-25T08:07:10Z</time>
+      </trkpt>
+      <trkpt lat="51.51330" lon="-0.11220">
+        <ele>73</ele>
+        <time>2026-04-25T08:11:30Z</time>
+      </trkpt>
+      <trkpt lat="51.51500" lon="-0.10730">
+        <ele>96</ele>
+        <time>2026-04-25T08:16:00Z</time>
+      </trkpt>
+      <trkpt lat="51.51710" lon="-0.10210">
+        <ele>89</ele>
+        <time>2026-04-25T08:20:30Z</time>
+      </trkpt>
+      <trkpt lat="51.51910" lon="-0.09740">
+        <ele>112</ele>
+        <time>2026-04-25T08:25:20Z</time>
+      </trkpt>
+      <trkpt lat="51.52030" lon="-0.09210">
+        <ele>104</ele>
+        <time>2026-04-25T08:30:10Z</time>
+      </trkpt>
+      <trkpt lat="51.51840" lon="-0.08760">
+        <ele>78</ele>
+        <time>2026-04-25T08:35:20Z</time>
+      </trkpt>
+      <trkpt lat="51.51580" lon="-0.09000">
+        <ele>58</ele>
+        <time>2026-04-25T08:40:30Z</time>
+      </trkpt>
+      <trkpt lat="51.51280" lon="-0.09520">
+        <ele>46</ele>
+        <time>2026-04-25T08:45:40Z</time>
+      </trkpt>
+      <trkpt lat="51.50970" lon="-0.10520">
+        <ele>38</ele>
+        <time>2026-04-25T08:52:00Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>
