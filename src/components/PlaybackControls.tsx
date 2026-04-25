@@ -1,6 +1,6 @@
 import { formatDistance, formatPercent } from '../utils/format'
 
-const SPEEDS = [1, 2, 5, 10] as const
+const SPEEDS = [0.1, 0.25, 0.5, 1, 2, 5, 10] as const
 
 interface PlaybackControlsProps {
   disabled: boolean
