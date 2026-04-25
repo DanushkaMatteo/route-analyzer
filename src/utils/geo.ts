@@ -143,27 +143,45 @@ export function findPointIndexByDistance(
   return nextDelta < previousDelta ? low : previousIndex
 }
 
+const SPEED_WINDOW_METERS = 200
+const SPEED_WINDOW_SECONDS = 45
+
 export function getCurrentSegmentStats(
   points: TrackPoint[],
   currentIndex: number,
 ) {
   const current = points[currentIndex]
-  const previous = points[Math.max(0, currentIndex - 1)]
-  if (
-    !current ||
-    !previous ||
-    current.timestamp === undefined ||
-    previous.timestamp === undefined
-  ) {
+  if (!current || current.timestamp === undefined) {
     return {}
   }
 
-  const deltaSeconds = (current.timestamp - previous.timestamp) / 1000
-  if (deltaSeconds <= 0 || current.segmentDistance <= 0) {
+  let anchorIndex = currentIndex
+  for (let index = currentIndex - 1; index >= 0; index--) {
+    const candidate = points[index]
+    if (candidate.timestamp === undefined) {
+      break
+    }
+
+    anchorIndex = index
+    const distanceBack = current.distanceFromStart - candidate.distanceFromStart
+    const timeBack = (current.timestamp - candidate.timestamp) / 1000
+    if (distanceBack >= SPEED_WINDOW_METERS || timeBack >= SPEED_WINDOW_SECONDS) {
+      break
+    }
+  }
+
+  const anchor = points[anchorIndex]
+  if (!anchor || anchor.timestamp === undefined || anchorIndex === currentIndex) {
     return {}
   }
 
-  const speedMps = current.segmentDistance / deltaSeconds
+  const distance = current.distanceFromStart - anchor.distanceFromStart
+  const seconds = (current.timestamp - anchor.timestamp) / 1000
+  if (distance <= 0 || seconds <= 0) {
+    return {}
+  }
+
+  const speedMps = distance / seconds
   return {
     speedMps,
     paceSecondsPerKm: 1000 / speedMps,
